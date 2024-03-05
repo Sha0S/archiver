@@ -58,11 +58,11 @@ fn main() -> Result<(), std::io::Error> {
     for (source, destination) in config {
         // Sanitiy check:
         if !Path::new(&source).exists() {
-            panic!("Source folder not found!");
+            panic!("Source folder not found! {}", source);
         }
 
         if !Path::new(&destination).exists() {
-            panic!("Destination folder not found!");
+            panic!("Destination folder not found! {}", destination);
         }
 
         // Create output filename:
@@ -74,16 +74,16 @@ fn main() -> Result<(), std::io::Error> {
         );
         let destination_path = Path::new(&destination).join(Path::new(&filename));
 
-        println!("{:?} -> {:?}", source_path, destination_path);
-
+        println!("Starting {:?} -> {:?}", source_path, destination_path);
         let t = Instant::now();
 
+        // Create the archive:
         let tar_gz = File::create(destination_path)?;
         let enc = GzEncoder::new(tar_gz, Compression::default());
         let mut tar = tar::Builder::new(enc);
         tar.append_dir_all(".", source_path)?;
 
-        println!("Time: {}", t.elapsed().as_secs());
+        println!("Time elapsed: {} sec", t.elapsed().as_secs());
 
         tar.finish()?;
     }
