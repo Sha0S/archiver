@@ -95,13 +95,19 @@ fn main() -> Result<(), std::io::Error> {
                     source_path.display(),
                     destination_path.display()
                 );
+
+                println!(
+                    "\tRunning: tar -caf \"{}\" -C \"{}\" \".\"",
+                    destination_path.to_str().unwrap(),
+                    &source
+                );
+
                 let t = Instant::now();
 
                 // Create the archive:
                 let status = process::Command::new("tar")
                     .args([
-                        "-ca",
-                        "-f",
+                        "-caf",
                         destination_path.to_str().unwrap(),
                         "-C",
                         &source,
@@ -110,8 +116,8 @@ fn main() -> Result<(), std::io::Error> {
                     .status()
                     .expect("failed to execute process");
 
-                println!("Status: {}", status);
-                println!("Time elapsed: {} sec", t.elapsed().as_secs());
+                println!("\tStatus: {}", status);
+                println!("Time elapsed: {} sec\n", t.elapsed().as_secs());
             }
 
             Mode::SubFolders => {
@@ -133,13 +139,19 @@ fn main() -> Result<(), std::io::Error> {
                             path.display(),
                             destination_path.display()
                         );
+
+                        println!(
+                            "\tRunning: tar -caf \"{}\" -C \"{}\" \".\"",
+                            destination_path.to_str().unwrap(),
+                            path.to_str().unwrap()
+                        );
+
                         let t = Instant::now();
 
                         // Create the archive:
                         let status = process::Command::new("tar")
                             .args([
-                                "-ca",
-                                "-f",
+                                "-caf",
                                 destination_path.to_str().unwrap(),
                                 "-C",
                                 path.to_str().unwrap(),
@@ -148,8 +160,8 @@ fn main() -> Result<(), std::io::Error> {
                             .status()
                             .expect("failed to execute process");
 
-                        println!("Status: {}", status);
-                        println!("Time elapsed: {} sec", t.elapsed().as_secs());
+                        println!("\tStatus: {}", status);
+                        println!("Time elapsed: {} sec\n", t.elapsed().as_secs());
                     }
 
                     // Should we care about singular files?
