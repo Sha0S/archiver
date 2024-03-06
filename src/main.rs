@@ -125,6 +125,14 @@ fn main() -> Result<(), std::io::Error> {
                     let entry = entry?;
                     let path = entry.path();
                     if path.is_dir() {
+                        // Make subdir in destination dir named the current date
+                        let final_destination = Path::new(&destination)
+                            .join(Path::new(&format!("{}", Local::now().format("%y_%m_%d"))));
+
+                        if !final_destination.exists() {
+                            fs::create_dir_all(&final_destination)?;
+                        }
+
                         // Create output filename:
                         let filename = format!(
                             "{}_{}{}",
@@ -132,7 +140,7 @@ fn main() -> Result<(), std::io::Error> {
                             Local::now().format("%y_%m_%d_%H_%M"),
                             extension
                         );
-                        let destination_path = Path::new(&destination).join(Path::new(&filename));
+                        let destination_path = Path::new(&final_destination).join(Path::new(&filename));
 
                         println!(
                             "Starting {} -> {}",
