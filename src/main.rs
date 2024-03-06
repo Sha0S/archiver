@@ -61,8 +61,9 @@ fn main() -> Result<(), std::io::Error> {
             panic!("Source folder not found! {}", source);
         }
 
+        // Create the destination dir, if it does not exist:
         if !Path::new(&destination).exists() {
-            panic!("Destination folder not found! {}", destination);
+            fs::create_dir_all(&destination)?;
         }
 
         // Create output filename:
