@@ -121,6 +121,7 @@ fn main() -> Result<(), std::io::Error> {
             }
 
             Mode::SubFolders => {
+                // Check each subdir of source:
                 for entry in fs::read_dir(source)? {
                     let entry = entry?;
                     let path = entry.path();
@@ -129,6 +130,7 @@ fn main() -> Result<(), std::io::Error> {
                         let final_destination = Path::new(&destination)
                             .join(Path::new(&format!("{}", Local::now().format("%y_%m_%d"))));
 
+                        // If it does not exist then create it:
                         if !final_destination.exists() {
                             fs::create_dir_all(&final_destination)?;
                         }
