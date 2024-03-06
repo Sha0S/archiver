@@ -68,21 +68,24 @@ fn main() -> Result<(), std::io::Error> {
         // Create output filename:
         let source_path = Path::new(&source);
         let filename = format!(
-            "{}_{}.tar.gz",
+            "{}_{}.tar.zstd",
             source_path.file_name().unwrap().to_str().unwrap(), //this should not fail. It could only fail if it can't extract a filename from the Path.
             Local::now().format("%y_%m_%d_%H_%M")
         );
         let destination_path = Path::new(&destination).join(Path::new(&filename));
 
-        println!("Starting {:?} -> {:?}", source_path, destination_path);
+        println!("Starting {} -> {}", source_path.display(), destination_path.display());
         let t = Instant::now();
 
         // Create the archive:
         let status = process::Command::new("tar")
             .args([
-                "-cf",
+                "-ca",
+                "-f",
                 destination_path.to_str().unwrap(),
-                source_path.to_str().unwrap(),
+                "-C",
+                &source,
+                "."
             ])
             .status()
             .expect("failed to execute process");
