@@ -19,10 +19,9 @@ Q:
 */
 
 use chrono::Local;
-use flate2::write::GzEncoder;
-use flate2::Compression;
-use std::fs::{self, File};
+use std::fs;
 use std::path::Path;
+use std::process;
 use std::time::Instant;
 
 // Return is a vector of (source_dir, destination_dir)
@@ -79,14 +78,17 @@ fn main() -> Result<(), std::io::Error> {
         let t = Instant::now();
 
         // Create the archive:
-        let tar_gz = File::create(destination_path)?;
-        let enc = GzEncoder::new(tar_gz, Compression::default());
-        let mut tar = tar::Builder::new(enc);
-        tar.append_dir_all(".", source_path)?;
+        let status = process::Command::new("tar")
+            .args([
+                "-cf",
+                destination_path.to_str().unwrap(),
+                source_path.to_str().unwrap(),
+            ])
+            .status()
+            .expect("failed to execute process");
 
+        println!("Status: {}", status);
         println!("Time elapsed: {} sec", t.elapsed().as_secs());
-
-        tar.finish()?;
     }
 
     Ok(())
