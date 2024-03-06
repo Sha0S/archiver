@@ -1,3 +1,18 @@
+/*
+Usage: archive.exe (format)
+Format is by default ".tar.zst" but that can be changed by passing a argument to the exe.
+
+config file:
+Contains lines, in the following format: 
+{Source directory}|{Destination directory}(|{Mode})
+
+The program archives {source directory} to {destination directory}.
+Default mode is [OneArchive], where the whole source dir will be compressed to one archive.
+Optional mode is [SubFolders], which is activated if the line ends in "|S".
+In this mode each subdirectory will be converted to it's own archive, 
+saved inside a subfolder of the {destination directory}, named after the current date.
+*/
+
 use chrono::Local;
 use std::env;
 use std::fs;
