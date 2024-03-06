@@ -1,25 +1,6 @@
-/*
-.\config: contains source|destination directory pairs
-
-Flow:
-- process the config file
-- for each of the pairs:
-    - compress the source directory to a ".tar.gz" archive.
-    - save the archive in the destination directory
-    - the filename will be: SOURCE_YY_MM_DD_HH_MM.tar.gz
-    - we use ".tar.gz" to preserve hardlinks. (Usefull for the ICT.)
-
-Q:
-- How do we want to handle shared folders?
-    - Each machine doing it's own archive sounds sub-optimal, the machine accessing it ower the network
-      would take ages to finish, and we would have to handle situations where the shared folder is not accesible.
-    - We could run it only on the owner of the directory, and use a different process to copy them to the other PCs.
-- Do we want to automatically delete older entries to free up space?
-- Logging?
-*/
-
 use chrono::Local;
 use std::fs;
+use std::env;
 use std::path::Path;
 use std::process;
 use std::time::Instant;
@@ -54,6 +35,16 @@ fn read_config() -> Vec<(String, String)> {
 fn main() -> Result<(), std::io::Error> {
     let config = read_config();
 
+    let args: Vec<String> = env::args().collect();
+    let extension: String = {
+        if let Some(s) = args.get(1) {
+            s.to_owned()
+        } else {
+            ".tar.zst".to_owned()
+        }
+    };
+
+
     for (source, destination) in config {
         // Sanitiy check:
         if !Path::new(&source).exists() {
@@ -68,9 +59,10 @@ fn main() -> Result<(), std::io::Error> {
         // Create output filename:
         let source_path = Path::new(&source);
         let filename = format!(
-            "{}_{}.tar.zstd",
+            "{}_{}{}",
             source_path.file_name().unwrap().to_str().unwrap(), //this should not fail. It could only fail if it can't extract a filename from the Path.
-            Local::now().format("%y_%m_%d_%H_%M")
+            Local::now().format("%y_%m_%d_%H_%M"),
+            extension
         );
         let destination_path = Path::new(&destination).join(Path::new(&filename));
 
