@@ -1,6 +1,5 @@
 /*
-Usage: archive.exe (format)
-Format is by default ".tar.zst" but that can be changed by passing a argument to the exe.
+Usage: archive.exe 
 
 config file:
 Contains lines, in the following format: 
@@ -14,7 +13,6 @@ saved inside a subfolder of the {destination directory}, named after the current
 */
 
 use chrono::Local;
-use std::env;
 use std::fs;
 use std::path::Path;
 use std::process;
@@ -70,17 +68,6 @@ fn read_config() -> Vec<(String, String, Mode)> {
 fn main() -> Result<(), std::io::Error> {
     let config = read_config();
 
-    // default extension is .tar.zst
-    // passing a arg to the program will overwrite this
-    let args: Vec<String> = env::args().collect();
-    let extension: String = {
-        if let Some(s) = args.get(1) {
-            s.to_owned()
-        } else {
-            ".tar.zst".to_owned()
-        }
-    };
-
     for (source, destination, mode) in config {
         // Sanitiy check:
         if !Path::new(&source).exists() {
@@ -101,7 +88,7 @@ fn main() -> Result<(), std::io::Error> {
                     "{}_{}{}",
                     source_path.file_name().unwrap().to_str().unwrap(), //this should not fail. It could only fail if it can't extract a filename from the Path.
                     Local::now().format("%y_%m_%d_%H_%M"),
-                    extension
+                    ".tgz"
                 );
                 let destination_path = Path::new(&destination).join(Path::new(&filename));
 
@@ -112,7 +99,7 @@ fn main() -> Result<(), std::io::Error> {
                 );
 
                 println!(
-                    "\tRunning: tar -caf \"{}\" -C \"{}\" \".\"",
+                    "\tRunning: tar -czf \"{}\" -C \"{}\" \".\"",
                     destination_path.to_str().unwrap(),
                     &source
                 );
@@ -122,7 +109,7 @@ fn main() -> Result<(), std::io::Error> {
                 // Create the archive:
                 let status = process::Command::new("tar")
                     .args([
-                        "-caf",
+                        "-czf",
                         destination_path.to_str().unwrap(),
                         "-C",
                         &source,
@@ -155,7 +142,7 @@ fn main() -> Result<(), std::io::Error> {
                             "{}_{}{}",
                             path.file_name().unwrap().to_str().unwrap(), //this should not fail. It could only fail if it can't extract a filename from the Path.
                             Local::now().format("%y_%m_%d_%H_%M"),
-                            extension
+                            ".tgz"
                         );
                         let destination_path = Path::new(&final_destination).join(Path::new(&filename));
 
@@ -166,7 +153,7 @@ fn main() -> Result<(), std::io::Error> {
                         );
 
                         println!(
-                            "\tRunning: tar -caf \"{}\" -C \"{}\" \".\"",
+                            "\tRunning: tar -czf \"{}\" -C \"{}\" \".\"",
                             destination_path.to_str().unwrap(),
                             path.to_str().unwrap()
                         );
@@ -176,7 +163,7 @@ fn main() -> Result<(), std::io::Error> {
                         // Create the archive:
                         let status = process::Command::new("tar")
                             .args([
-                                "-caf",
+                                "-czf",
                                 destination_path.to_str().unwrap(),
                                 "-C",
                                 path.to_str().unwrap(),
